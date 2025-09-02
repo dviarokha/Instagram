@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <user>
+        <id>1</id>
+        <firstName>Darya</firstName>
+        <lastName>Viarokha</lastName>
+        <dateOfBirth>1994-04-15</dateOfBirth>
+        <emailAddress>darya.viarokha@dmail.com</emailAddress>
+        <phoneNumber>+79876543210</phoneNumber>
+        <userTypeId>1</userTypeId>
+        <profileId>1</profileId>
+    </user>
+
+    <user>
+        <id>2</id>
+        <firstName>Roma</firstName>
+        <lastName>Ivanov</lastName>
+        <dateOfBirth>1990-11-23</dateOfBirth>
+        <emailAddress>roma.ivanov@gmail.com</emailAddress>
+        <phoneNumber>+48261234567</phoneNumber>
+        <userTypeId>2</userTypeId>
+        <profileId>2</profileId>
+    </user>
+
+    <user>
+        <id>3</id>
+        <firstName>Tanya</firstName>
+        <lastName>Petrova</lastName>
+        <dateOfBirth>1998-02-10</dateOfBirth>
+        <emailAddress>tanya.petrova@gmail.com</emailAddress>
+        <phoneNumber>+48998887766</phoneNumber>
+        <userTypeId>3</userTypeId>
+        <profileId>4</profileId>
+    </user>
+
+    <user>
+        <id>4</id>
+        <firstName>Petya</firstName>
+        <lastName>Petrov</lastName>
+        <dateOfBirth>1988-07-22</dateOfBirth>
+        <emailAddress>petya.petrov@gmail.com</emailAddress>
+        <phoneNumber>+48005556677</phoneNumber>
+        <userTypeId>2</userTypeId>
+        <profileId>34</profileId>
+    </user>
+
+</users>

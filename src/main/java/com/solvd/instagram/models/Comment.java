@@ -9,15 +9,15 @@ public class Comment {
     private Long userId;
     private Long postId;
 
-    public Comment() {
-    }
-
     public Comment(Long id, LocalDateTime commentedAt, String textComment, Long userId, Long postId) {
         this.id = id;
         this.commentedAt = commentedAt;
         this.textComment = textComment;
         this.userId = userId;
         this.postId = postId;
+    }
+
+    public Comment() {
     }
 
     public Long getId() {

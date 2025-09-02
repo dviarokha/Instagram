@@ -10,9 +10,6 @@ public class Message {
     private Long senderId;
     private Long receiverId;
 
-    public Message() {
-    }
-
     public Message(Long id, LocalDateTime sendAt, boolean isRead, String textMessage, Long senderId, Long receiverId) {
         this.id = id;
         this.sendAt = sendAt;
@@ -20,6 +17,9 @@ public class Message {
         this.textMessage = textMessage;
         this.senderId = senderId;
         this.receiverId = receiverId;
+    }
+
+    public Message() {
     }
 
     public Long getId() {

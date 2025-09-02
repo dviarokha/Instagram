@@ -48,4 +48,5 @@ public class Stories {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
 }

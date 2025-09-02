@@ -5,13 +5,14 @@ public class Follow {
     private Long followerId;
     private Long followedId;
 
-    public Follow() {
-    }
 
     public Follow(Long id, Long followerId, Long followedId) {
         this.id = id;
         this.followerId = followerId;
         this.followedId = followedId;
+    }
+
+    public Follow() {
     }
 
     public Long getId() {

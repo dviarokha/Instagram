@@ -12,9 +12,6 @@ public class Post {
     private List<Comment> comments;
     private List<Like> likes;
 
-    public Post() {
-    }
-
     public Post(Long id, LocalDateTime postedAt, Long userId, Long postTypeId,  List<PostTag> postTags,
                 List<Comment> comments, List<Like> likes) {
         this.id = id;
@@ -24,6 +21,10 @@ public class Post {
         this.postTags = postTags;
         this.comments = comments;
         this.likes = likes;
+    }
+
+    public Post() {
+
     }
 
     public Long getId() {

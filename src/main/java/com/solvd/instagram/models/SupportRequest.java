@@ -8,14 +8,16 @@ public class SupportRequest {
     private LocalDate requestDate;
     private Long userId;
 
-    public SupportRequest() {
-    }
 
     public SupportRequest(Long id, String requestName, LocalDate requestDate, Long userId) {
         this.id = id;
         this.requestName = requestName;
         this.requestDate = requestDate;
         this.userId = userId;
+    }
+
+    public SupportRequest() {
+
     }
 
     public Long getId() {

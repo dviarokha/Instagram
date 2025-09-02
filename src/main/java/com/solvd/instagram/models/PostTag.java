@@ -5,13 +5,14 @@ public class PostTag {
     private Long tagId;
     private Long postId;
 
-    public PostTag() {
-    }
-
     public PostTag(Long id, Long tagId, Long postId) {
         this.id = id;
         this.tagId = tagId;
         this.postId = postId;
+    }
+
+    public PostTag() {
+
     }
 
     public Long getId() {

@@ -33,7 +33,7 @@ public class Setting {
         return isDarkMode;
     }
 
-    public void setDarkMode(boolean darkMode) {
+    public void setIsDarkMode(boolean darkMode) {
         isDarkMode = darkMode;
     }
 

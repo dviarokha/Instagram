@@ -23,8 +23,7 @@ public class User {
     private List<Follow> followerId;
     private List<Follow> followingId;
 
-    public User() {
-    }
+
 
     public User(Long id, String firstName, String lastName, LocalDate dateOfBirth, String emailAddress, String phoneNumber,
                 Long userTypeId, Long profileId, List<Post> posts, List<Stories> stories, List<Message> senderId,
@@ -48,6 +47,10 @@ public class User {
         this.notifications = notifications;
         this.followerId = followerId;
         this.followingId = followingId;
+    }
+
+    public User() {
+
     }
 
     public Long getId() {
@@ -192,5 +195,19 @@ public class User {
 
     public void setfollowingId(List<Follow> followingId) {
         this.followingId = followingId;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", userTypeId=" + userTypeId +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", profileId=" + profileId +
+                '}';
     }
 }

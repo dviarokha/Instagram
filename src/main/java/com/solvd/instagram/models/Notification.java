@@ -9,8 +9,6 @@ public class Notification {
     private String textNotification;
     private Long userId;
 
-    public Notification() {
-    }
 
     public Notification(Long id, boolean isRead, LocalDateTime notifiedAt, String textNotification, Long userId) {
         this.id = id;
@@ -18,6 +16,8 @@ public class Notification {
         this.notifiedAt = notifiedAt;
         this.textNotification = textNotification;
         this.userId = userId;
+    }
+    public Notification() {
     }
 
     public Long getId() {

@@ -7,7 +7,7 @@ public class Profile {
     private String profileName;
 
 
-    public Profile() {
+  public Profile() {
     }
 
     public Profile(Long id, boolean isVerified, boolean isPrivate, String profileName) {
@@ -37,8 +37,8 @@ public class Profile {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(boolean privated) {
+        isPrivate = privated;
     }
 
     public String getProfileName() {
@@ -48,4 +48,5 @@ public class Profile {
     public void setProfileName(String profileName) {
         this.profileName = profileName;
     }
+
 }

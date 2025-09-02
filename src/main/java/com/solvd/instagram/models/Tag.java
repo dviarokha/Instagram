@@ -7,13 +7,15 @@ public class Tag {
     private String tagName;
     private List<PostTag> postTags;
 
-    public Tag() {
-    }
 
     public Tag(Long id, String tagName, List<PostTag> postTags) {
         this.tagName = tagName;
         this.id = id;
         this.postTags = postTags;
+    }
+
+    public Tag() {
+
     }
 
     public Long getId() {

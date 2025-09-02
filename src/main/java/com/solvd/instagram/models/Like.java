@@ -8,14 +8,14 @@ public class Like {
     private Long postId;
     private Long userId;
 
-    public Like() {
-    }
 
     public Like(Long id, LocalTime likedAt, Long postId, Long userId) {
         this.id = id;
         this.likedAt = likedAt;
         this.postId = postId;
         this.userId = userId;
+    }
+    public Like() {
     }
 
     public Long getId() {
