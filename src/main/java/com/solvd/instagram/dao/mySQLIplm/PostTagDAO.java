@@ -1,6 +1,5 @@
 package com.solvd.instagram.dao.mySQLIplm;
 
-import com.solvd.instagram.bd.MySQL;
 import com.solvd.instagram.dao.IPostTagDAO;
 import com.solvd.instagram.models.PostTag;
 import org.apache.logging.log4j.LogManager;

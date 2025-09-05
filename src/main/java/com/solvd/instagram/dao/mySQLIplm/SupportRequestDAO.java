@@ -1,6 +1,5 @@
 package com.solvd.instagram.dao.mySQLIplm;
 
-import com.solvd.instagram.bd.MySQL;
 import com.solvd.instagram.dao.ISupportRequestDAO;
 
 import com.solvd.instagram.models.SupportRequest;

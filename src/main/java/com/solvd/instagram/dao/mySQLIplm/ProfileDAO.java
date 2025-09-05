@@ -1,6 +1,5 @@
 package com.solvd.instagram.dao.mySQLIplm;
 
-import com.solvd.instagram.bd.MySQL;
 import com.solvd.instagram.dao.IProfileDAO;
 import com.solvd.instagram.models.Profile;
 import org.apache.logging.log4j.LogManager;
@@ -15,34 +14,19 @@ public class ProfileDAO extends MySQL implements IProfileDAO<Profile> {
 
     @Override
     public List<Profile> getAllProfiles() throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         List<Profile> profiles = new ArrayList<>();
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Profiles");
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                Profile profile = new Profile();
-                profile.setId(rs.getLong("id"));
-                profile.setVerified(rs.getBoolean("is_verified"));
-                profile.setPrivate(rs.getBoolean("is_private"));
-                profile.setProfileName(rs.getString("profile_name"));
-                profiles.add(profile);
+        try (
+            Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+            PreparedStatement stmt = c.prepareStatement("SELECT * FROM Profiles");
+            ) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Profile profile = resultSetToProfile(rs);
+                    profiles.add(profile);
+                }
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
-        }  finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (c != null) {
-                c.close();
-            }
         }
         return profiles;
     }
@@ -251,5 +235,14 @@ public class ProfileDAO extends MySQL implements IProfileDAO<Profile> {
             }
         }
 
+    }
+
+    private Profile resultSetToProfile(ResultSet rs) throws SQLException {
+        Profile profile = new Profile();
+        profile.setId(rs.getLong("id"));
+        profile.setVerified(rs.getBoolean("is_verified"));
+        profile.setPrivate(rs.getBoolean("is_private"));
+        profile.setProfileName(rs.getString("profile_name"));
+        return profile;
     }
 }
