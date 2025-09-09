@@ -1,5 +1,7 @@
 package com.solvd.instagram.dao;
 
+import com.solvd.instagram.models.Post;
+
 import java.sql.SQLException;
 
 public interface IBaseDAO <T> {

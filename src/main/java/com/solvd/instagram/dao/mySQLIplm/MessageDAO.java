@@ -4,6 +4,7 @@ package com.solvd.instagram.dao.mySQLIplm;
 import com.solvd.instagram.dao.IMessageDAO;
 
 import com.solvd.instagram.models.Message;
+import com.solvd.instagram.models.Post;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,17 +19,17 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
     @Override
     public List<Message> getAllMessages() throws SQLException {
         List<Message> messages = new ArrayList<>();
+        String sql = "SELECT * FROM Messages";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement  stmt = connection.prepareStatement("SELECT * FROM Messages");
-            ) {
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
+        ) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Message message = resultSetToMessage(rs);
-                    messages.add(message);
+                    messages.add(resultSetToMessage(rs));
                 }
             }
-        }  catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
             throw e;
         }
@@ -36,11 +37,12 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
     }
 
     @Override
-    public Message getMessagesBySendAt(LocalDateTime sendAt) throws SQLException {
+    public Message findBySendAt(LocalDateTime sendAt) throws SQLException {
         Message message = null;
+        String sql = "SELECT * FROM Messages WHERE send_at = ?";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Messages WHERE send_at = ?");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
         ) {
             stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             try (ResultSet rs = stmt.executeQuery()) {
@@ -48,7 +50,7 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
                     message = resultSetToMessage(rs);
                 }
             }
-        }    catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
             throw e;
         }
@@ -56,19 +58,20 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
     }
 
     @Override
-    public Message getMessagesByTextMessage(String textMessage) throws SQLException {
+    public Message findByTextMessage(String textMessage) throws SQLException {
         Message message = null;
+        String sql = "SELECT * FROM Messages WHERE text_message = ?";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Messages WHERE text_message = ?");
-            ) {
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
+        ) {
             stmt.setString(1, textMessage);
-            try(ResultSet  rs = stmt.executeQuery()) {
-                while (rs.next()) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
                     message = resultSetToMessage(rs);
                 }
             }
-        }   catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
             throw e;
         }
@@ -76,19 +79,20 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
     }
 
     @Override
-    public Message getMessagesBySenderId(long senderId) throws SQLException {
+    public Message findBySenderId(long senderId) throws SQLException {
         Message message = null;
+        String sql = "SELECT * FROM Messages WHERE sender_id = ?";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Messages WHERE sender_id = ?");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
         ) {
             stmt.setLong(1, senderId);
-        try(ResultSet rs = stmt.executeQuery() ) {
-            while (rs.next()) {
-                message = resultSetToMessage(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    message = resultSetToMessage(rs);
+                }
             }
-        }
-        }    catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
             throw e;
         }
@@ -96,20 +100,20 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
     }
 
     @Override
-    public Message getMessagesByReceiverId(long receiverId) throws SQLException {
+    public Message findByReceiverId(long receiverId) throws SQLException {
         Message message = null;
+        String sql = "SELECT * FROM Messages WHERE receiver_id = ?";
         try (
-            Connection  connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Messages WHERE receiver_id = ?");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
         ) {
             stmt.setLong(1, receiverId);
-            try (ResultSet rs = stmt.executeQuery() ) {
-
-            while (rs.next()) {
-                message = resultSetToMessage(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    message = resultSetToMessage(rs);
+                }
             }
-            }
-        }    catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
             throw e;
         }
@@ -118,23 +122,26 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
 
     @Override
     public Message insert(Message entity) throws SQLException {
+        String sql = "INSERT INTO  Messages(send_at, is_read, text_message, sender_id, receiver_id) VALUES (?,?,?,?,?)";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("INSERT INTO  Messages(send_at, is_read, text_message, sender_id, receiver_id) " +
-                    "VALUES (?,?,?,?,?)",  Statement.RETURN_GENERATED_KEYS);
-            ) {
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ) {
             stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setBoolean(2, entity.isRead());
             stmt.setString(3, entity.getTextMessage());
             stmt.setLong(4, entity.getSenderId());
             stmt.setLong(5, entity.getReceiverId());
-            stmt.executeUpdate();
-            try(ResultSet rs = stmt.getGeneratedKeys()) {
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted == 0) {
+                throw new SQLException("Insert failed");
+            }
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
                 while (rs.next()) {
                     entity.setId(rs.getLong(1));
                 }
             }
-        }  catch (Exception ex) {
+        } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
         return entity;
@@ -143,17 +150,18 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
     @Override
     public Message getById(Long id) throws SQLException {
         Message message = null;
+        String sql = "SELECT * FROM Messages WHERE message_id = ?";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM Messages WHERE message_id = ?");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
         ) {
             stmt.setLong(1, id);
-            try(ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     message = resultSetToMessage(rs);
                 }
             }
-        }   catch (Exception ex) {
+        } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
         return message;
@@ -161,10 +169,10 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
 
     @Override
     public Message update(Message entity) throws SQLException {
+        String sql = "UPDATE Messages SET send_at = ?, is_read = ?,  text_message = ?, sender_id = ?, receiver_id = ? WHERE message_id = ?";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("UPDATE Messages SET send_at = ?, is_read = ?,  text_message = ?, sender_id = ?, " +
-                    "receiver_id = ? WHERE message_id = ?");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
         ) {
             stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setBoolean(2, entity.isRead());
@@ -172,8 +180,11 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
             stmt.setLong(4, entity.getSenderId());
             stmt.setLong(5, entity.getReceiverId());
             stmt.setLong(6, entity.getId());
-            stmt.executeUpdate();
-        }  catch (Exception ex) {
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new SQLException("Update failed");
+            }
+        } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
         }
         return entity;
@@ -181,12 +192,16 @@ public class MessageDAO extends MySQL implements IMessageDAO<Message> {
 
     @Override
     public void removeById(Long id) throws SQLException {
+        String sql = "DELETE FROM Messages WHERE message_id = ?";
         try (
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = connection.prepareStatement("DELETE FROM Messages WHERE message_id = ?");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = connection.prepareStatement(sql);
         ) {
             stmt.setLong(1, id);
-            stmt.executeUpdate();
+           int rowsDeleted = stmt.executeUpdate();
+           if (rowsDeleted == 0) {
+               throw new SQLException("Delete failed");
+           }
         } catch (SQLException ex) {
             LOGGER.error(ex.getMessage());
         }

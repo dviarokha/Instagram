@@ -11,83 +11,101 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserStaxReader {
-    public static List<User> readUsers(String fileName) throws FileNotFoundException, XMLStreamException {
+    public static List<User> readUsers(String fileName) throws XMLStreamException {
         List<User> users = new ArrayList<>();
         User currentUser = null;
         String elementContent = null;
         String currentElement = null;
 
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLEventReader reader = factory.createXMLEventReader(new FileInputStream(fileName));
+        XMLEventReader reader = null;
 
-        while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+        try (
+                FileInputStream fileInputStream = new FileInputStream(fileName)) {
+                reader = factory.createXMLEventReader(fileInputStream);
 
-            switch (event.getEventType()) {
+            while (reader.hasNext()) {
+                XMLEvent event = reader.nextEvent();
 
-                case XMLStreamConstants.START_ELEMENT:
-                    StartElement startElement = event.asStartElement();
-                    currentElement = startElement.getName().getLocalPart();
+                switch (event.getEventType()) {
 
-                    if ("user".equals(currentElement)) {
-                        currentUser = new User();
-                    }
-                    break;
+                    case XMLStreamConstants.START_ELEMENT:
+                        StartElement startElement = event.asStartElement();
+                        currentElement = startElement.getName().getLocalPart();
 
-                case XMLStreamConstants.CHARACTERS:
-                    Characters characters = event.asCharacters();
-                    if (!characters.isWhiteSpace()) {
-                        elementContent = characters.getData();
-                    }
-                    break;
-
-                case XMLStreamConstants.END_ELEMENT:
-                    EndElement endElement = event.asEndElement();
-                    String endElementName = endElement.getName().getLocalPart();
-
-                    if (currentUser != null && elementContent != null) {
-                        switch (endElementName) {
-                            case "id":
-                                currentUser.setId(Long.parseLong(elementContent));
-                                break;
-                            case "firstName":
-                                currentUser.setFirstName(elementContent);
-                                break;
-                            case "lastName":
-                                currentUser.setLastName(elementContent);
-                                break;
-                            case "dateOfBirth":
-                                currentUser.setDateOfBirth(LocalDate.parse(elementContent));
-                                break;
-                            case "emailAddress":
-                                currentUser.setEmailAddress(elementContent);
-                                break;
-                            case "phoneNumber":
-                                currentUser.setPhoneNumber(elementContent);
-                                break;
-                            case "userTypeId":
-                                currentUser.setUserTypeId(Long.parseLong(elementContent));
-                                break;
-                            case "profileId":
-                                currentUser.setProfileId(Long.parseLong(elementContent));
-                                break;
-
+                        if ("user".equals(currentElement)) {
+                            currentUser = new User();
                         }
-                    }
-                    if ("user".equals(endElementName)) {
-                        users.add(currentUser);
-                    }
+                        break;
+
+                    case XMLStreamConstants.CHARACTERS:
+                        Characters characters = event.asCharacters();
+                        if (!characters.isWhiteSpace()) {
+                            elementContent = characters.getData();
+                        }
+                        break;
+
+                    case XMLStreamConstants.END_ELEMENT:
+                        EndElement endElement = event.asEndElement();
+                        String endElementName = endElement.getName().getLocalPart();
+
+                        if (currentUser != null && elementContent != null) {
+                            addUserField(currentUser, endElementName, elementContent);
+                        }
+                        if ("user".equals(endElementName)) {
+                            users.add(currentUser);
+                        }
+                        elementContent = null;
+                        break;
+                }
+            }
+        } catch (IOException e) {
+            throw new XMLStreamException("Error while reading file" + fileName, e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (XMLStreamException e) {
+                    throw new XMLStreamException("Error closing XML reader", e);
+                }
             }
         }
-        reader.close();
         return users;
+    }
 
+    private static void addUserField(User user, String fieldName, String fieldValue) {
+        switch (fieldName) {
+            case "id":
+                user.setId(Long.parseLong(fieldValue));
+                break;
+            case "firstName":
+                user.setFirstName(fieldValue);
+                break;
+            case "lastName":
+                user.setLastName(fieldValue);
+                break;
+            case "dateOfBirth":
+                user.setDateOfBirth(LocalDate.parse(fieldValue));
+                break;
+            case "emailAddress":
+                user.setEmailAddress(fieldValue);
+                break;
+            case "phoneNumber":
+                user.setPhoneNumber(fieldValue);
+                break;
+            case "userTypeId":
+                user.setUserTypeId(Long.parseLong(fieldValue));
+                break;
+            case "profileId":
+                user.setProfileId(Long.parseLong(fieldValue));
+                break;
+        }
     }
 }
 

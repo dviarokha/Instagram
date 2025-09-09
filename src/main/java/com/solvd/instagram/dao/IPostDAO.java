@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IPostDAO<T> extends IBaseDAO<T> {
     List<T> getAllPosts() throws SQLException;
-    T getPostByPostedAt(LocalDateTime postedAt)  throws SQLException;
-    T getPostByPostTypeId(long postTypeId) throws SQLException;
-    T getPostByUserId(long userId) throws SQLException;
+    T findByPostedAt(LocalDateTime postedAt)  throws SQLException;
+    List<T> findByPostTypeId(long postTypeId) throws SQLException;
+    List<T> findByUserId(long userId) throws SQLException;
 }

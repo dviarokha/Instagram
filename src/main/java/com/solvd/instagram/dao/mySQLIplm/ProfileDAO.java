@@ -1,6 +1,7 @@
 package com.solvd.instagram.dao.mySQLIplm;
 
 import com.solvd.instagram.dao.IProfileDAO;
+import com.solvd.instagram.models.Post;
 import com.solvd.instagram.models.Profile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,226 +16,165 @@ public class ProfileDAO extends MySQL implements IProfileDAO<Profile> {
     @Override
     public List<Profile> getAllProfiles() throws SQLException {
         List<Profile> profiles = new ArrayList<>();
+        String sql = "SELECT * FROM Profile?";
         try (
-            Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            PreparedStatement stmt = c.prepareStatement("SELECT * FROM Profiles");
-            ) {
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Profile profile = resultSetToProfile(rs);
-                    profiles.add(profile);
+                    profiles.add(resultSetToProfile(rs));
                 }
             }
         } catch (SQLException e) {
             logger.error(e.getMessage());
+            throw e;
         }
         return profiles;
     }
 
     @Override
-    public Profile getProfileByIsVerified(boolean isVerified) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    public Profile findByIsVerified(boolean isVerified) throws SQLException {
+        String sql = "SELECT * FROM Profile WHERE is_verified = ?";
         Profile profile = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Profiles WHERE is_verified = ?");
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setBoolean(1, isVerified);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                profile = new Profile();
-                profile.setId(rs.getLong("id"));
-                profile.setVerified(rs.getBoolean("is_verified"));
-                profile.setPrivate(rs.getBoolean("is_private"));
-                profile.setProfileName(rs.getString("profile_name"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    profile = resultSetToProfile(rs);
+                }
             }
-        }  catch (SQLException e) {
+        } catch (SQLException e) {
             logger.error(e.getMessage());
-        }   finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
+            throw e;
         }
         return profile;
     }
 
     @Override
-    public Profile getProfileByIsPrivate(boolean isPrivate) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    public Profile findByIsPrivate(boolean isPrivate) throws SQLException {
+        String sql = "SELECT * FROM Profile WHERE is_private = ?";
         Profile profile = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Profiles WHERE is_private = ?");
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setBoolean(1, isPrivate);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                profile = new Profile();
-                profile.setId(rs.getLong("id"));
-                profile.setVerified(rs.getBoolean("is_verified"));
-                profile.setPrivate(rs.getBoolean("is_private"));
-                profile.setProfileName(rs.getString("profile_name"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    profile = resultSetToProfile(rs);
+                }
             }
-        }   catch (SQLException e) {
+        } catch (SQLException e) {
             logger.error(e.getMessage());
-        } finally  {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
         }
         return profile;
     }
 
     @Override
-    public Profile getProfileByProfileName(String profileName) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    public Profile findByProfileName(String profileName) throws SQLException {
         Profile profile = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Profiles WHERE profile_name = ?");
+        String sql = "SELECT * FROM Profile WHERE profile_name = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, profileName);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                profile = new Profile();
-                profile.setId(rs.getLong("id"));
-                profile.setVerified(rs.getBoolean("is_verified"));
-                profile.setPrivate(rs.getBoolean("is_private"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    profile = resultSetToProfile(rs);
+                }
             }
-        }    catch (SQLException e) {
+        } catch (SQLException e) {
             logger.error(e.getMessage());
-        }  finally  {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
         }
         return profile;
     }
 
     @Override
     public Profile insert(Profile entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("INSERT INTO Profiles(is_verified, is_private, profile_name) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
+        String sql = "INSERT INTO Profiles(is_verified, is_private, profile_name) VALUES(?,?,?)";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ) {
             stmt.setBoolean(1, entity.isVerified());
             stmt.setBoolean(2, entity.isPrivate());
             stmt.setString(3, entity.getProfileName());
-            stmt.executeUpdate();
-            rs = stmt.getGeneratedKeys();
-            while (rs.next()) {
-                entity.setId(rs.getLong(1));
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted == 0) {
+                throw new SQLException("Insert Profile failed");
             }
-        }  catch (SQLException e) {
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    entity.setId(rs.getLong(1));
+                }
+            }
+        } catch (SQLException e) {
             logger.error(e.getMessage());
-        }  finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (c != null) {
-                c.close();
-            }
         }
         return entity;
     }
 
     @Override
     public Profile getById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         Profile profile = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Profiles WHERE profile_id = ?");
+        String sql = "SELECT * FROM Profile WHERE profile_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                profile = new Profile();
-                profile.setId(id);
-                profile.setVerified(rs.getBoolean(1));
-                profile.setPrivate(rs.getBoolean(2));
-                profile.setProfileName(rs.getString(3));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    profile = resultSetToProfile(rs);
+                }
             }
-        }   catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
-        }   finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (c != null) {
-                c.close();
-            }
         }
         return profile;
     }
 
     @Override
     public Profile update(Profile entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("UPDATE Profiles SET is_verified = ?, is_private =?, profile_name = ? WHERE profile_id = ?");
+        String sql = "UPDATE Profiles SET is_verified = ?, is_private =?, profile_name = ? WHERE profile_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setBoolean(1, entity.isVerified());
             stmt.setBoolean(2, entity.isPrivate());
             stmt.setString(3, entity.getProfileName());
             stmt.setLong(4, entity.getId());
-            stmt.executeUpdate();
-        }   catch (Exception e) {
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new SQLException("Update Profile failed");
+            }
+        } catch (Exception e) {
             logger.error(e.getMessage());
-        }    finally {
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (c != null) {
-                c.close();
-            }
         }
         return entity;
     }
 
     @Override
     public void removeById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("DELETE FROM Profiles WHERE profile_id = ?");
+        String sql = "DELETE FROM Profiles WHERE profile_id = ?";
+        try (
+            Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+            PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            stmt.executeUpdate();
-        }   catch (SQLException e) {
+            int rowsDeleted = stmt.executeUpdate();
+            if (rowsDeleted == 0) {
+                throw new SQLException("Delete Profile failed");
+            }
+        } catch (SQLException e) {
             logger.error(e.getMessage());
-        }    finally {
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (c != null) {
-                c.close();
-            }
         }
-
     }
 
     private Profile resultSetToProfile(ResultSet rs) throws SQLException {

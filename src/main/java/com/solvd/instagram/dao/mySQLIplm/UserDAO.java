@@ -1,6 +1,7 @@
 package com.solvd.instagram.dao.mySQLIplm;
 
 import com.solvd.instagram.dao.IUserDAO;
+import com.solvd.instagram.models.Post;
 import com.solvd.instagram.models.User;
 
 import java.sql.*;
@@ -15,372 +16,272 @@ import org.apache.logging.log4j.Logger;
 public class UserDAO extends MySQL implements IUserDAO<User> {
     private static final Logger logger = LogManager.getLogger(UserDAO.class);
 
-
     @Override
     public User insert(User entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("INSERT INTO Users (first_name, last_name, date_of_birth, email_address, phone_number ) " +
-                    "VALUES (?, ?, ?, ?, ?)",  Statement.RETURN_GENERATED_KEYS);
-
+        String sql = "INSERT INTO Users (first_name, last_name, date_of_birth, email_address, phone_number) VALUES (?, ?, ?, ?, ?)";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ) {
             stmt.setString(1, entity.getFirstName());
             stmt.setString(2, entity.getLastName());
             stmt.setDate(3, Date.valueOf(entity.getDateOfBirth()));
-            stmt.setString(4, entity.getEmailAddress());
+            stmt.setString(4, entity.getEmailAddress("darya@gmail.com"));
             stmt.setString(5, entity.getPhoneNumber());
-            rs = stmt.getGeneratedKeys();
-            while (rs.next()) {
-                entity.setId(rs.getLong(1));
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted == 0) {
+                throw new SQLException("Failed to insert row into the table");
             }
-
-        } catch (Exception e) {
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    entity.setId(rs.getLong(1));
+                }
+            }
+        } catch (SQLException e) {
             logger.error("Error while inserting user", e);
-        } finally {
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
-            if (c != null) {c.close();}
-            //releaseConnection(c);
+            throw e;
         }
         return entity;
     }
 
     @Override
     public User getById(Long userId) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
         User user = null;
-        try{
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE user_id = ?");
-            stmt.setLong(1,userId);
-
-            rs = stmt.executeQuery();
-            while (rs.next()){
-                user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+        String sql = "SELECT * FROM Users WHERE user_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    user = resultSetToUser(rs);
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error when getting user by ID:" + userId, e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
-            //releaseConnection(c);
+            throw e;
         }
         return user;
     }
 
     @Override
     public User update(User entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("UPDATE Users SET first_name = ?, last_name = ?, date_of_birth = ?, email_address = ?, " +
-                    "phone_number = ? WHERE user_id = ? ");
-
+        String sql = "UPDATE Users SET first_name = ?, last_name = ?, date_of_birth = ?, email_address = ?, phone_number = ? WHERE user_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, entity.getFirstName());
             stmt.setString(2, entity.getLastName());
             stmt.setDate(3, Date.valueOf(entity.getDateOfBirth()));
-            stmt.setString(4, entity.getEmailAddress());
+            stmt.setString(4, entity.getEmailAddress("darya@gmail.com"));
             stmt.setString(5, entity.getPhoneNumber());
             stmt.setLong(6, entity.getId());
-
-            int i = stmt.executeUpdate();
-            if (i == 0) {
-                throw new SQLException("The user was not updated in the database.");
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                logger.warn("Error when updating user by ID:" + entity.getId());
             }
-
         } catch (SQLException e) {
             logger.error("Error updating user with id: " + entity.getId(), e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            //releaseConnection(c);
+            throw e;
         }
         return entity;
     }
 
     @Override
     public void removeById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("DELETE FROM Users WHERE user_id = ?");
+        String sql = "DELETE FROM Users WHERE user_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-
-            int i = stmt.executeUpdate();
-            if (i == 0) {
-                throw new SQLException("The user was not removed from the database.");
+            int rowsDeleted = stmt.executeUpdate();
+            if (rowsDeleted == 0) {
+                logger.warn("No user found to delete with ID:" + id);
             }
-
         } catch (SQLException e) {
-            logger.error("Error deleting user with id:" + id , e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            //releaseConnection(c);
+            logger.error("Error deleting user with id:" + id, e);
+            throw e;
         }
     }
 
     @Override
     public List<User> getAllUsers() throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
         List<User> users = new ArrayList<>();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users");
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
-                users.add(user);
+        String sql = "SELECT * FROM Users";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(resultSetToUser(rs));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error(e.getMessage());
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return users;
     }
 
     @Override
-    public User getUserByEmail(String emailAddress) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public User findByEmail(String emailAddress) throws SQLException {
         User user = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE email_address = ?");
+        String sql = "SELECT * FROM Users WHERE email_address = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, emailAddress);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    user = resultSetToUser(rs);
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting user by email:" + emailAddress, e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return user;
     }
 
     @Override
-    public User getUserByPhone(String phoneNumber) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public User findByPhone(String phoneNumber) throws SQLException {
         User user = null;
-
-        try {
-            c = c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE phone_number = ?");
+        String sql = "SELECT * FROM Users WHERE phone_number = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, phoneNumber);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    user = resultSetToUser(rs);
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting user by phone:" + phoneNumber, e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return user;
     }
 
     @Override
-    public List<User> getUsersByFirstName(String firstName) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public List<User> findByFirstName(String firstName) throws SQLException {
         List<User> users = new ArrayList<>();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE first_name = ?");
+        String sql = "SELECT * FROM Users WHERE first_name = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, firstName);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(resultSetToUser(rs));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting users by first name:" + firstName, e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return users;
     }
 
     @Override
-    public List<User> getUsersByLastName(String lastName) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public List<User> findByLastName(String lastName) throws SQLException {
         List<User> users = new ArrayList<>();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE last_name = ?");
+        String sql = "SELECT * FROM Users WHERE last_name = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, lastName);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(resultSetToUser(rs));
+                }
             }
-        }  catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting users by last name:" + lastName, e);
-        }  finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return users;
     }
 
     @Override
-    public List<User> getUsersByDateOfBirth(LocalDate dateOfBirth) throws SQLException{
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public List<User> findByDateOfBirth(LocalDate dateOfBirth) throws SQLException {
         List<User> users = new ArrayList<>();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE date_of_birth = ?");
+        String sql = "SELECT * FROM Users WHERE date_of_birth = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, dateOfBirth.toString());
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(resultSetToUser(rs));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting users by date of birth:" + dateOfBirth, e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return users;
     }
 
     @Override
-    public List<User> getUsersByUserTypeId(Long userTypeId) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public List<User> findByUserTypeId(Long userTypeId) throws SQLException {
         List<User> users = new ArrayList<>();
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE user_type_id = ?");
+        String sql = "SELECT * FROM Users WHERE user_type_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, userTypeId);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
-                user.setUserTypeId(userTypeId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(resultSetToUser(rs));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting users by user_type_id:" + userTypeId, e);
-        } finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return users;
     }
 
     @Override
-    public List<User> getUsersByProfileId(Long profileId) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs  = null;
+    public List<User> findByProfileId(Long profileId) throws SQLException {
         List<User> users = new ArrayList<>();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Users WHERE profile_id = ?");
+        String sql = "SELECT * FROM Users WHERE profile_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, profileId);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getLong("id"));
-                user.setFirstName(rs.getString("first_name"));
-                user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
-                user.setLastName(rs.getString("last_name"));
-                user.setEmailAddress(rs.getString("email_address"));
-                user.setPhoneNumber(rs.getString("phone_number"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(resultSetToUser(rs));
+                }
             }
-        }  catch (Exception e) {
+        } catch (SQLException e) {
             logger.error("Error while getting users by profile_id:" + profileId, e);
-        }  finally {
-            if (c != null) {c.close();}
-            if (stmt != null) {stmt.close();}
-            if (rs != null) {rs.close();}
+            throw e;
         }
         return users;
+    }
+
+    private User resultSetToUser(ResultSet rs) throws SQLException {
+        User user = new User();
+        user.setId(rs.getLong("id"));
+        user.setFirstName(rs.getString("first_name"));
+        user.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
+        user.setLastName(rs.getString("last_name"));
+        user.setEmailAddress(rs.getString("email_address"));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        return user;
     }
 }

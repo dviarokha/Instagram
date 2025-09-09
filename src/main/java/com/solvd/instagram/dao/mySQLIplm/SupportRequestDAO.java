@@ -2,6 +2,7 @@ package com.solvd.instagram.dao.mySQLIplm;
 
 import com.solvd.instagram.dao.ISupportRequestDAO;
 
+import com.solvd.instagram.models.Post;
 import com.solvd.instagram.models.SupportRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,212 +15,174 @@ import java.util.List;
 public class SupportRequestDAO extends MySQL implements ISupportRequestDAO<SupportRequest> {
     public static final Logger logger = LogManager.getLogger(SupportRequestDAO.class);
 
-
     @Override
     public List<SupportRequest> getAllSupportRequest() throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         List<SupportRequest> supportRequests = new ArrayList<>();
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Support_requests");
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                SupportRequest supportRequest = new SupportRequest();
-                supportRequest.setId(rs.getLong("id"));
-                supportRequest.setRequestName(rs.getString("request_name"));
-                supportRequest.setRequestDate(rs.getDate("request_date").toLocalDate());
-                supportRequest.setUserId(rs.getLong("user_id"));
-                supportRequests.add(supportRequest);
+        String sql = "SELECT * FROM SupportRequest";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    supportRequests.add(resultSetToSupportRequest(rs));
+                }
             }
         } catch (Exception e) {
             logger.error(e);
-        } finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return supportRequests;
     }
 
     @Override
-    public SupportRequest getSupportRequestByName(String name) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    public SupportRequest findByName(String name) throws SQLException {
         SupportRequest supportRequest = new SupportRequest();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Support_requests WHERE request_name = ?");
+        String sql = "SELECT * FROM SupportRequest WHERE request_name = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, name);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                supportRequest.setId(rs.getLong("id"));
-                supportRequest.setRequestName(rs.getString("request_name"));
-                supportRequest.setRequestDate(rs.getDate("request_date").toLocalDate());
-                supportRequest.setUserId(rs.getLong("user_id"));
-            }
-        }  catch (Exception e) {
-            logger.error(e);
-        } finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
-        }
-        return supportRequest;
-    }
-
-    @Override
-    public SupportRequest getSupportRequestByRequestDate(LocalDate date) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        SupportRequest supportRequest = new SupportRequest();
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Support_requests WHERE request_date = ?");
-            stmt.setString(1, date.toString());
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                supportRequest.setId(rs.getLong("id"));
-                supportRequest.setRequestName(rs.getString("request_name"));
-                supportRequest.setRequestDate(rs.getDate("request_date").toLocalDate());
-                supportRequest.setUserId(rs.getLong("user_id"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    supportRequest = resultSetToSupportRequest(rs);
+                }
             }
         } catch (Exception e) {
             logger.error(e);
-        }  finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return supportRequest;
     }
 
     @Override
-    public List<SupportRequest> getSupportRequestByUserId(Long userId) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        List<SupportRequest> supportRequests = new ArrayList<>();
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Support_requests WHERE user_id = ?");
-            stmt.setLong(1, userId);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                SupportRequest supportRequest = new SupportRequest();
-                supportRequest.setId(rs.getLong("id"));
-                supportRequest.setRequestName(rs.getString("request_name"));
-                supportRequest.setRequestDate(rs.getDate("request_date").toLocalDate());
-                supportRequest.setUserId(rs.getLong("user_id"));
+    public SupportRequest findByRequestDate(LocalDate date) throws SQLException {
+        SupportRequest supportRequest = new SupportRequest();
+        String sql = "SELECT * FROM SupportRequest WHERE request_date = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            stmt.setString(1, date.toString());
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    resultSetToSupportRequest(rs);
+                }
             }
-        }  catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e);
-        }  finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
+        }
+        return supportRequest;
+    }
+
+    @Override
+    public List<SupportRequest> findByUserId(Long userId) throws SQLException {
+        List<SupportRequest> supportRequests = new ArrayList<>();
+        String sql = "SELECT * FROM SupportRequest WHERE user_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    supportRequests.add(resultSetToSupportRequest(rs));
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
         }
         return supportRequests;
     }
 
     @Override
     public SupportRequest insert(SupportRequest entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("INSERT INTO Support_Requests(request_name, request_date) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+        String sql = "INSERT INTO Support_Requests(request_name, request_date) VALUES (?,?)";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ) {
             stmt.setString(1, entity.getRequestName());
             stmt.setDate(2, Date.valueOf(LocalDate.now()));
-            stmt.executeUpdate();
-            rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                entity.setId(rs.getLong(1));
+            int rowInserted = stmt.executeUpdate();
+            if (rowInserted == 0) {
+                throw new SQLException("Failed to insert row into the table");
+            }
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    entity.setId(rs.getLong(1));
+                }
             }
         } catch (Exception e) {
             logger.error(e);
-        } finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return entity;
     }
 
     @Override
     public SupportRequest getById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         SupportRequest supportRequest = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Support_Requests WHERE suppor_request_id = ?");
+        String sql = "SELECT * FROM SupportRequest WHERE support_request_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                supportRequest = new SupportRequest();
-                supportRequest.setId(rs.getLong("id"));
-                supportRequest.setRequestName(rs.getString("request_name"));
-                supportRequest.setRequestDate(rs.getDate("request_date").toLocalDate());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    supportRequest = resultSetToSupportRequest(rs);
+                }
             }
-        }  catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
-        } finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return supportRequest;
     }
 
     @Override
     public SupportRequest update(SupportRequest entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt =  c.prepareStatement("UPDATE Support_Requests SET request_name = ?, request_date = ? WHERE suppor_request_id = ?");
+        String sql = "UPDATE Support_Requests SET request_name = ?, request_date = ? WHERE suppor_request_id = ?";
+        try (
+            Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+            PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setString(1, entity.getRequestName());
             stmt.setDate(2, Date.valueOf(entity.getRequestDate()));
-            stmt.executeUpdate();
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new SQLException("Failed to update row into the table");
+            }
         } catch (Exception e) {
             logger.error(e);
-        } finally {
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return entity;
     }
 
     @Override
     public void removeById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("DELETE FROM Support_Requests WHERE suppor_request_id = ?");
+        String sql = "DELETE FROM SupportRequest WHERE support_request_id = ?";
+        try (
+            Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+            PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            stmt.executeUpdate();
+            int rowDeleted = stmt.executeUpdate();
+            if (rowDeleted == 0) {
+                logger.warn("Failed to delete row from the table");
+            }
         } catch (Exception e) {
             logger.error(e);
-        }  finally {
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (c != null) {
-                c.close();
-            }
         }
     }
+
+    private SupportRequest resultSetToSupportRequest(ResultSet rs) throws SQLException {
+        SupportRequest supportRequest = new SupportRequest();
+        supportRequest.setId(rs.getLong("id"));
+        supportRequest.setRequestName(rs.getString("request_name"));
+        supportRequest.setRequestDate(rs.getDate("request_date").toLocalDate());
+        return supportRequest;
+    }
+
+
 }
 
 

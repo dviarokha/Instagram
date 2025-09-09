@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ISupportRequestDAO<T> extends  IBaseDAO<T>  {
     List<T> getAllSupportRequest() throws SQLException;
-    T getSupportRequestByName(String name) throws SQLException;
-    T getSupportRequestByRequestDate(LocalDate date) throws SQLException;
-    List<T> getSupportRequestByUserId(Long userId) throws SQLException;
+    T findByName(String name) throws SQLException;
+    T findByRequestDate(LocalDate date) throws SQLException;
+    List<T> findByUserId(Long userId) throws SQLException;
 }

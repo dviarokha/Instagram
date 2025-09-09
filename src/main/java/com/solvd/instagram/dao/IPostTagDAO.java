@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface IPostTagDAO<T> extends IBaseDAO<T> {
     List<PostTag> getAllPostTags() throws SQLException;
-    T getPostTagByTagId(long id) throws SQLException;
-    T getPostTagByPostId(long id) throws SQLException;
+    List<PostTag> findByTagId(long id) throws SQLException;
+    List<PostTag> findByPostId(long id) throws SQLException;
 }

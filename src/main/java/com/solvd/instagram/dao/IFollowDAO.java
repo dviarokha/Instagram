@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface IFollowDAO<T> extends IBaseDAO<T> {
     List<T> getAllFollowers() throws SQLException;
-    T getFollowsByFollowerID(long id) throws SQLException;
-    T getFollowsByFollowedID(long id) throws SQLException;
+    T findByFollowerID(long id) throws SQLException;
+    T findByFollowedID(long id) throws SQLException;
 }

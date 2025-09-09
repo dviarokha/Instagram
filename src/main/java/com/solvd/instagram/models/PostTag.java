@@ -1,6 +1,6 @@
 package com.solvd.instagram.models;
 
-public class PostTag {
+public class PostTag extends Post {
     private Long id;
     private Long tagId;
     private Long postId;
@@ -23,7 +23,7 @@ public class PostTag {
         this.id = id;
     }
 
-    public Long getTagId() {
+    public Long getTagId(Long id) {
         return tagId;
     }
 

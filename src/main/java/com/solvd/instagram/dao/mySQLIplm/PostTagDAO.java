@@ -10,174 +10,157 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostTagDAO extends MySQL implements IPostTagDAO<PostTag> {
-    public static  final Logger logger = LogManager.getLogger(PostTagDAO.class);
+    public static final Logger logger = LogManager.getLogger(PostTagDAO.class);
 
     @Override
     public List<PostTag> getAllPostTags() throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         List<PostTag> postTags = new ArrayList<>();
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Post_tags");
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                PostTag postTag = new PostTag();
-                postTag.setPostId(rs.getLong(1));
-                postTag.setPostId(rs.getLong(2));
-                postTag.setTagId(rs.getLong(3));
-                postTags.add(postTag);
+        String sql = "SELECT * FROM PostTags";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    postTags.add(resultSetToPostTag(rs));
+                }
             }
-        }  catch (Exception e) {
-           logger.error(e.getMessage());
-        }  finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw e;
         }
         return postTags;
     }
 
     @Override
-    public PostTag getPostTagByTagId(long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        PostTag postTag = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Post_tags WHERE tag_id = ?");
+    public List<PostTag> findByTagId(long id) throws SQLException {
+        List<PostTag> postTags = new ArrayList<>();
+        String sql = "SELECT * FROM PostTags WHERE tag_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                postTag = new PostTag();
-                postTag.setPostId(rs.getLong("id_post"));
-                postTag.setTagId(rs.getLong("id_tag"));
-                postTag.setId(rs.getLong("id"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    postTags.add(resultSetToPostTag(rs));
+                }
             }
-        }    catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
-        }   finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
+            throw e;
         }
-        return postTag;
+        return postTags;
     }
 
     @Override
-    public PostTag getPostTagByPostId(long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+    public List<PostTag> findByPostId(long id) throws SQLException {
+        ArrayList<PostTag> postTags = new ArrayList<>();
         PostTag postTag = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM Post_tags WHERE post_id = ?");
+        String sql = "SELECT * FROM PostTags WHERE post_id = ?";
+        try(
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            rs = stmt.executeQuery();
-            while (rs.next()) {
-                postTag = new PostTag();
-                postTag.setPostId(rs.getLong("id_post"));
-                postTag.setTagId(rs.getLong("id_tag"));
-                postTag.setId(rs.getLong("id"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    postTag = resultSetToPostTag(rs);
+                }
             }
-        }   catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
-        }    finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
+            throw e;
         }
-        return postTag;
+        return postTags;
     }
 
     @Override
     public PostTag insert(PostTag entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("INSERT INTO PostTags(post_id, tag_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+        String sql = "INSERT INTO PostTags VALUES (?, ?, ?)";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ) {
             stmt.setLong(1, entity.getPostId());
-            stmt.setLong(2, entity.getTagId());
-            stmt.executeUpdate();
-            rs = stmt.getGeneratedKeys();
-            while (rs.next()) {
-                entity.setId(rs.getLong(1));
+            stmt.setLong(2, entity.getPostTypeId());
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted == 0) {
+                throw new SQLException("Insert failed. No rows affected.");
+            }
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    entity.setId(rs.getLong(1));
+                }
             }
         } catch (Exception e) {
             logger.error(e);
-        } finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return entity;
     }
 
     @Override
     public PostTag getById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         PostTag postTag = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("SELECT * FROM PostTags WHERE post_tag_id = ?");
+        String sql = "SELECT * FROM PostTags WHERE post_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                postTag = new PostTag();
-                postTag.setId(id);
-                postTag.setPostId(rs.getLong(2));
-                postTag.setTagId(rs.getLong(3));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    postTag = resultSetToPostTag(rs);
+                }
             }
-        }  catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e);
-        }  finally {
-            if (rs != null) {rs.close();}
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return postTag;
     }
 
     @Override
     public PostTag update(PostTag entity) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("UPDATE PostTags SET post_id = ?, tag_id = ? WHERE post_tag_id = ?");
+        String sql = "UPDATE PostTags SET post_id = ?, tag_id = ? WHERE post_tag_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, entity.getPostId());
-            stmt.setLong(2, entity.getTagId());
+            stmt.setLong(2, entity.getPostTypeId());
             stmt.setLong(3, entity.getId());
-            stmt.executeUpdate();
-        }  catch (Exception e) {
+           int rowsUpdated = stmt.executeUpdate();
+           if (rowsUpdated == 0) {
+               throw new SQLException("Update failed. No rows affected.");
+           }
+        } catch (Exception e) {
             logger.error(e);
-        }  finally {
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
         return entity;
     }
 
     @Override
     public void removeById(Long id) throws SQLException {
-        Connection c = null;
-        PreparedStatement stmt = null;
-        try {
-            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
-            stmt = c.prepareStatement("DELETE FROM PostTags WHERE post_tag_id = ?");
+        String sql = "DELETE FROM PostTags WHERE post_tag_id = ?";
+        try (
+                Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/Instagram_model", "root", "");
+                PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
             stmt.setLong(1, id);
-            stmt.executeUpdate();
-        }   catch (Exception e) {
+            int rowsDeleted = stmt.executeUpdate();
+            if (rowsDeleted == 0) {
+                throw new SQLException("Delete failed. No rows affected.");
+            }
+        } catch (Exception e) {
             logger.error(e);
-        }   finally {
-            if (stmt != null) {stmt.close();}
-            if (c != null) {c.close();}
         }
+    }
+
+    private PostTag resultSetToPostTag(ResultSet rs) throws SQLException {
+        PostTag postTag = new PostTag();
+        postTag.setId(rs.getLong("id_post"));
+        postTag.setTagId(rs.getLong("id_tag"));
+        postTag.setPostId(rs.getLong("id"));
+        return postTag;
     }
 }

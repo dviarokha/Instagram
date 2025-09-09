@@ -1,17 +1,29 @@
 package com.solvd.instagram.models;
 
+import com.solvd.instagram.adapter.LocalDateAdapter;
+import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@XmlRootElement(name = "user")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class User {
+
     private Long id;
     private String firstName;
     private String lastName;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate dateOfBirth;
+
     private String emailAddress;
     private String phoneNumber;
     private Long userTypeId;
     private Long profileId;
+
+    @XmlTransient
     private List<Post> posts;
     private List<Stories> stories;
     private List<Message> senderId;
@@ -85,7 +97,7 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getEmailAddress() {
+    public String getEmailAddress(String mail) {
         return emailAddress;
     }
 
