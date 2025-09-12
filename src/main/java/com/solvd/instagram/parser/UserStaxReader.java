@@ -12,6 +12,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,8 @@ public class UserStaxReader {
         XMLEventReader reader = null;
 
         try (
-                FileInputStream fileInputStream = new FileInputStream(fileName)) {
-                reader = factory.createXMLEventReader(fileInputStream);
+                InputStream InputStream = new FileInputStream(fileName)) {
+                reader = factory.createXMLEventReader(InputStream);
 
             while (reader.hasNext()) {
                 XMLEvent event = reader.nextEvent();

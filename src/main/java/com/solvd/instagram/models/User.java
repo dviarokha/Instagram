@@ -1,46 +1,49 @@
 package com.solvd.instagram.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.solvd.instagram.adapter.LocalDateAdapter;
 import jakarta.xml.bind.annotation.*;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.time.LocalDate;
-import java.util.List;
+
 
 @XmlRootElement(name = "user")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class User {
 
+    @XmlAttribute
+    @JsonProperty("id")
     private Long id;
+    @XmlElement(name = "firstName")
+    @JsonProperty("firstName")
     private String firstName;
+    @XmlElement(name = "lastName")
+    @JsonProperty("lastName")
     private String lastName;
 
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
+    @XmlElement(name = "emailAddress")
+    @JsonProperty("emailAddress")
     private String emailAddress;
+    @XmlElement(name = "phoneNumber")
+    @JsonProperty("phoneNumber")
     private String phoneNumber;
+    @XmlElement(name = "userTypeId")
+    @JsonProperty("userTypeId")
     private Long userTypeId;
+    @XmlElement(name = "profileId")
+    @JsonProperty("profileId")
     private Long profileId;
-
-    @XmlTransient
-    private List<Post> posts;
-    private List<Stories> stories;
-    private List<Message> senderId;
-    private List<Message> receiverId;
-    private List<SupportRequest> supportRequests;
-    private List<Comment> comments;
-    private List<Like> likes;
-    private List<Notification> notifications;
-    private List<Follow> followerId;
-    private List<Follow> followingId;
-
 
 
     public User(Long id, String firstName, String lastName, LocalDate dateOfBirth, String emailAddress, String phoneNumber,
-                Long userTypeId, Long profileId, List<Post> posts, List<Stories> stories, List<Message> senderId,
-                List<Message> receiverId, List<SupportRequest> supportRequests, List<Comment> comments, List<Like> likes,
-                List<Notification> notifications, List<Follow> followerId, List<Follow> followingId) {
+                Long userTypeId, Long profileId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -49,16 +52,6 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.userTypeId = userTypeId;
         this.profileId = profileId;
-        this.posts = posts;
-        this.stories = stories;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-        this.supportRequests = supportRequests;
-        this.comments = comments;
-        this.likes = likes;
-        this.notifications = notifications;
-        this.followerId = followerId;
-        this.followingId = followingId;
     }
 
     public User() {
@@ -68,7 +61,7 @@ public class User {
     public Long getId() {
         return id;
     }
-
+    @JsonSetter("id")
     public void setId(Long id) {
         this.id = id;
     }
@@ -76,7 +69,7 @@ public class User {
     public String getFirstName() {
         return firstName;
     }
-
+    @JsonSetter("firstName")
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -84,7 +77,7 @@ public class User {
     public String getLastName() {
         return lastName;
     }
-
+    @JsonSetter("lastName")
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -92,7 +85,7 @@ public class User {
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
-
+    @JsonSetter("dateOfBirth")
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
@@ -100,7 +93,7 @@ public class User {
     public String getEmailAddress(String mail) {
         return emailAddress;
     }
-
+    @JsonSetter("emailAddress")
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
     }
@@ -108,7 +101,7 @@ public class User {
     public String getPhoneNumber() {
         return phoneNumber;
     }
-
+    @JsonSetter("phoneNumber")
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -116,7 +109,7 @@ public class User {
     public Long getUserTypeId() {
         return userTypeId;
     }
-
+    @JsonSetter("userTypeId")
     public void setUserTypeId(Long userTypeId) {
         this.userTypeId = userTypeId;
     }
@@ -124,89 +117,9 @@ public class User {
     public Long getProfileId() {
         return profileId;
     }
-
+    @JsonSetter("profileId")
     public void setProfileId(Long profileId) {
         this.profileId = profileId;
-    }
-
-    public List<Post> getPosts() {
-        return posts;
-    }
-
-    public void setPosts(List<Post> posts) {
-        this.posts = posts;
-    }
-
-    public List<Stories> getStories() {
-        return stories;
-    }
-
-    public void setStories(List<Stories> stories) {
-        this.stories = stories;
-    }
-
-    public List<Message> getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(List<Message> senderId) {
-        this.senderId = senderId;
-    }
-
-    public List<Message> getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(List<Message> receiverId) {
-        this.receiverId = receiverId;
-    }
-
-    public List<SupportRequest> getSupportRequests() {
-        return supportRequests;
-    }
-
-    public void setSupportRequests(List<SupportRequest> supportRequests) {
-        this.supportRequests = supportRequests;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<Like> getLikes() {
-        return likes;
-    }
-
-    public void setLikes(List<Like> likes) {
-        this.likes = likes;
-    }
-
-    public List<Notification> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(List<Notification> notifications) {
-        this.notifications = notifications;
-    }
-
-    public List<Follow> getfollowerId() {
-        return followerId;
-    }
-
-    public void setfollowerId(List<Follow> followerId) {
-        this.followerId = followerId;
-    }
-
-    public List<Follow> getfollowingId() {
-        return followingId;
-    }
-
-    public void setfollowingId(List<Follow> followingId) {
-        this.followingId = followingId;
     }
 
     @Override
