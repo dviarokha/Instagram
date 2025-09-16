@@ -64,6 +64,19 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.20.0</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.19</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ibatis</groupId>
+            <artifactId>ibatis-sqlmap</artifactId>
+            <version>2.3.4.726</version>
+        </dependency>
     </dependencies>
 
 

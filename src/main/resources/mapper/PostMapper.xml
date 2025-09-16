@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.instagram.mybatis.PostMapper">
+
+    <insert id="create" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO Posts (posted_at, post_type_id, user_id)
+        VALUES (#{postedAt}, #{postTypeID}, #{userID} )
+    </insert>
+
+<select id="findPost" resultType="com.solvd.instagram.models.Post">
+    SELECT * FROM Post
+    where posted_at = #{posted_at} and post_type_id = #{post_type_id} and user_id = #{user_id}
+</select>
+
+    <update id="updatePost">
+        UPDATE Posts SET posted_at = #{posted_at}, post_type_id = #{post_type_id}, user_id = #{user_id}
+    </update>
+
+    <delete id="deletePostById">
+       DELETE from Posts where id = #{id}
+    </delete>
+
+    <select id="findAllPosts">
+        SELECT * FROM Posts
+    </select>
+
+    <sql id="whereUserAndType">
+        WHERE user_id = #{userId} AND post_type_id = #{postTypeId}
+    </sql>
+
+    <select id="findByUserAndType" resultType="Post">
+        SELECT * FROM Posts
+        <include refid="whereUserAndType"></include>
+    </select>
+
+    <resultMap id="PostResultMap" type="com.solvd.instagram.models.Post">
+        <id property="id" column="id"/>
+        <result property="postedAt" column="posted_at"/>
+        <result property="postTypeID" column="post_type_id"/>
+        <result property="userID" column="user_id"/>
+    </resultMap>
+
+</mapper>
