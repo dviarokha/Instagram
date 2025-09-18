@@ -12,6 +12,6 @@ public interface PostMapper {
     void updatePost(Post post);
     Post findPost(@Param("posted_at")LocalDateTime postedAt, @Param("post_type_id") Long postTypeId ,@Param("user_id") Long userId);
     List<Post> findAllPosts();
-    Post findByTypeandUserId(@Param("post_type_id") Long postTypeId, @Param("user_id") Long userId);
+    Post findByTypeAndUserId(@Param("post_type_id") Long postTypeId, @Param("user_id") Long userId);
 
 }

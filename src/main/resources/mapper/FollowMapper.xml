@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.instagram.mybatis.FollowMapper">
+
+    <update id="update">
+     UPDATE Follows
+     SET follower_Id = #{followerId}, followed_Id = #{followed_Id}
+     WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+     DELETE FROM Follows WHERE id = #{id}
+    </delete>
+
+    <select id="getFollowers" resultMap="FollowResultMap">
+     SELECT * FROM Follows WHERE followed_Id = #{followedId}
+    </select>
+
+    <select id="getFollowings" resultMap="FollowResultMap">
+        SELECT * FROM Follows WHERE follower_Id = #{followerId}
+    </select>
+
+    <select id="getFollow">
+        SELECT * FROM Follows WHERE follower_Id = #{followerId} AND followed_Id = #{followedId}
+    </select>
+
+    <select id="countFollowers" resultType="int">
+        SELECT COUNT(*) FROM Follows WHERE followed_Id = #{Id}
+    </select>
+    
+    <resultMap id="FollowResultMap" type="com.solvd.instagram.models.Follow">
+       <id property="id" column="id"/>
+        <result property="followerId" column="follower_Id"/>
+        <result property="followedId" column="followed_Id"/>
+    </resultMap>
+    
+</mapper>

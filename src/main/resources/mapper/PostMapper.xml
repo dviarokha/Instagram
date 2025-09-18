@@ -3,25 +3,25 @@
 
 <mapper namespace="com.solvd.instagram.mybatis.PostMapper">
 
-    <insert id="create" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createPost" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO Posts (posted_at, post_type_id, user_id)
         VALUES (#{postedAt}, #{postTypeID}, #{userID} )
     </insert>
 
-<select id="findPost" resultType="com.solvd.instagram.models.Post">
-    SELECT * FROM Post
-    where posted_at = #{posted_at} and post_type_id = #{post_type_id} and user_id = #{user_id}
+<select id="findPost" resultMap="PostResultMap">
+    SELECT * FROM Posts
+    where posted_at = #{posted_at} AND post_type_id = #{post_type_id} AND user_id = #{user_id}
 </select>
 
-    <update id="updatePost">
-        UPDATE Posts SET posted_at = #{posted_at}, post_type_id = #{post_type_id}, user_id = #{user_id}
+    <update id="updatePost" >
+        UPDATE Posts SET posted_at = #{posted_at}, post_type_id = #{post_type_id}, user_id = #{user_id} Where id = #{id}
     </update>
 
     <delete id="deletePostById">
-       DELETE from Posts where id = #{id}
+       DELETE FROM Posts where id = #{id}
     </delete>
 
-    <select id="findAllPosts">
+    <select id="findAllPosts" resultMap="PostResultMap">
         SELECT * FROM Posts
     </select>
 
@@ -29,9 +29,9 @@
         WHERE user_id = #{userId} AND post_type_id = #{postTypeId}
     </sql>
 
-    <select id="findByUserAndType" resultType="Post">
+    <select id="findByTypeAndUserId" resultMap="PostResultMap">
         SELECT * FROM Posts
-        <include refid="whereUserAndType"></include>
+        <include refid="whereUserAndType"/>
     </select>
 
     <resultMap id="PostResultMap" type="com.solvd.instagram.models.Post">
