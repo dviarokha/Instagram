@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.instagram.mybatis.SettingsMapper">
+
+    <insert id="" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO Settings (is_Dark_Mode, privacy_Level, email_Notification, push_Notification,user_Id)
+        VALUES (#{isDarkMode}, #{privacyLevel}, #{emailNotification}, #{pushNotification}, #{userId})
+    </insert>
+
+    <select id="getSettingsById">
+    SELECT * FROM Settings WHERE user_Id = #{userId}
+    </select>
+
+    <update id="updateNotificationSettings">
+     UPDATE Settings SET email_Notification = true AND push_Notification = true
+    </update>
+
+    <resultMap id="" type="com.solvd.instagram.models.Setting">
+        <id property="id" column="id"/>
+        <result property="isDarkMode" column="is_Dark_Mode"/>
+        <result property="privacyLevel" column="privacy_Level"/>
+        <result property="emailNotification" column="email_Notification"/>
+        <result property="pushNotification" column="push_Notification"/>
+        <result property="userId" column="user_Id"/>
+    </resultMap>
+</mapper>

@@ -30,7 +30,7 @@
     </select>
     
     <resultMap id="FollowResultMap" type="com.solvd.instagram.models.Follow">
-       <id property="id" column="id"/>
+        <id property="id" column="id"/>
         <result property="followerId" column="follower_Id"/>
         <result property="followedId" column="followed_Id"/>
     </resultMap>

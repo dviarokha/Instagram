@@ -1,5 +1,6 @@
 package com.solvd.instagram.mybatis;
 
+import com.solvd.instagram.exceptions.ConfigurationException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -22,7 +23,7 @@ public class MybatisSessionHolder {
         try {
             inputStream = Resources.getResourceAsStream(CONFIG_FILE_NAME);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to prepare MyBatis XML config",  e);
+            throw new ConfigurationException("Unable to prepare MyBatis");
         }
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
         return builder.build(inputStream);

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.instagram.mybatis.StoriesMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO Stories (id, created_At, expired_At, user_Id)
+    VALUES (#{createdAt}, #{expiredAt}, #{userId})
+    </insert>
+
+    <delete id="deleteById">
+    DELETE  FROM Stories WHERE id = #{id}
+    </delete>
+
+    <select id="countByCreatedAt" resultType="int">
+      SELECT COUNT(*) FROM Stories WHERE createdAt = #{created_At}
+    </select>
+
+    <resultMap id="StoriesResultMap" type="com.solvd.instagram.models.Stories">
+        <id property="id" column="id"/>
+        <result property="createdAt" column="created_At"/>
+        <result property="expiredAt" column="expired_At"/>
+        <result property="userId" column="user_Id"/>
+    </resultMap>
+</mapper>

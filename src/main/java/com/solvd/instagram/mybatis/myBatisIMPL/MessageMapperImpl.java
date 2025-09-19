@@ -3,7 +3,6 @@ package com.solvd.instagram.mybatis.myBatisIMPL;
 import com.solvd.instagram.models.Message;
 import com.solvd.instagram.mybatis.MessageMapper;
 import com.solvd.instagram.mybatis.MybatisSessionHolder;
-import com.solvd.instagram.mybatis.PostMapper;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.List;
