@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.instagram.dao.mybatisImpl.CommentMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+     INSERT INTO  Comments (commented_At, text_Comment,user_Id, post_Id)
+     VALUES (#{commentedAt}, #{textComment}, #{userId}, #{postId})
+    </insert>
+
+    <update id="update">
+    UPDATE Comments SET commented_At=#{commentedAt}, text_Comment=#{textComment}, user_Id=#{userId}, post_Id=#{postId}
+    WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+       DELETE FROM Comments WHERE id = #{id}
+    </delete>
+
+    <select id="selectByCommentId" resultMap="CommentResultMap">
+      SELECT * FROM Comments
+      WHERE id = #{id}
+    </select>
+
+    <select id="getAllComments" resultMap="CommentResultMap">
+    SELECT * FROM Comments
+    </select>
+
+    <select id="findByCommentedAt" resultMap="CommentResultMap">
+        SELECT * FROM Comments
+        WHERE commented_At=#{commentedAt}
+    </select>
+
+    <select id="findByTextComment" resultMap="CommentResultMap">
+        SELECT * FROM Comments
+        WHERE  text_Comment=#{textComment}
+    </select>
+
+    <select id="findByPostId" resultMap="CommentResultMap">
+        SELECT * FROM Comments
+        WHERE  post_Id=#{postId}
+    </select>
+
+    <select id="findByUserId" resultMap="CommentResultMap">
+        SELECT * FROM Comments
+        WHERE user_Id=#{userId}
+    </select>
+
+    
+    <resultMap id="CommentResultMap" type="com.solvd.instagram.models.Comment">
+        <id property="id" column="id"/>
+        <result property="commentedAt" column="commented_At"/>
+        <result property="textComment" column="text_Comment"/>
+        <result property="userId" column="user_Id"/>
+        <result property="postId" column="post_Id"/>
+    </resultMap>
+</mapper>

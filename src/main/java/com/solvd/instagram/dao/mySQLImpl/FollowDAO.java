@@ -1,4 +1,4 @@
-package com.solvd.instagram.dao.mySQLIplm;
+package com.solvd.instagram.dao.mySQLImpl;
 
 import com.solvd.instagram.dao.IFollowDAO;
 import com.solvd.instagram.models.Follow;
@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.solvd.instagram.models.Post;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

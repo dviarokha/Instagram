@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.instagram.dao.mybatisImpl.PostTagMapper">
+
+    <select id="getAllPostTags" resultMap="PostTagResultMap">
+     SELECT * FROM PostTags
+    </select>
+
+    <select id="findByTagId" resultMap="PostTagResultMap">
+      SELECT * FROM PostTags WHERE tag_Id = #{tagId}
+    </select>
+
+    <select id="findByPostId" resultMap="PostTagResultMap">
+        SELECT * FROM PostTags WHERE post_Id = #{postId}
+    </select>
+
+    <select id="getById">
+        SELECT * FROM PostTags WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO PostTags (tag_Id, post_Id)
+        VALUES (#{tagId}, #{postId})
+    </insert>
+
+    <update id="update">
+     UPDATE PostTags SET tag_Id = #{tagId}, post_Id = #{postId}
+     WHERE  id = #{id}
+    </update>
+
+    <delete id="removeById">
+     DELETE FROM PostTags WHERE id = #{id}
+    </delete>
+
+
+    <resultMap id="PostTagResultMap" type="com.solvd.instagram.models.PostTag">
+        <id property="id" column="id"/>
+        <result property="tagId" column="tag_Id"/>
+        <result property="postId" column="post_Id"/>
+    </resultMap>
+</mapper>

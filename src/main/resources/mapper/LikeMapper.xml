@@ -1,25 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.solvd.instagram.mybatis.LikeMapper">
+<mapper namespace="com.solvd.instagram.dao.mybatisImpl.LikeMapper">
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
      INSERT INTO Likes (like_At, post_Id,user_Id)
      VALUES (#{likedAt}, #{postId}, #{userId})
     </insert>
 
-    <select id="deleteLikeByUserAndPost">
-     SELECT * FROM Likes WHERE post_id = #{postId} and user_id = #{userId}
+    <update id="update">
+        UPDATE Likes SET like_At=#{likedAt}, post_Id=#{postId},user_Id=#{userId}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM Likes WHERE id = #{id}
+    </delete>
+
+    <select id="getById">
+        SELECT * FROM Likes
+        WHERE id = #{id}
     </select>
 
-    <select id="countLikeForPost" resultType="int">
-     SELECT COUNT(*) FROM Likes WHERE post_Id = #{postId}
+    <select id="getAllLikes" resultType="LikeResultMap">
+        SELECT * FROM Likes
     </select>
 
-    <select id="countLikeForUser" resultType="int">
-        SELECT COUNT(*) FROM Likes WHERE user_Id = #{userId}
+    <select id="findByLikedAt" resultMap="LikeResultMap">
+     SELECT * FROM Likes WHERE like_At = #{likedAt}
     </select>
 
+    <select id="findByPostId" resultType="LikeResultMap">
+     SELECT * FROM Likes WHERE post_Id = #{postId}
+    </select>
+
+    <select id="findByUserId" resultType="LikeResultMap">
+        SELECT * FROM Likes WHERE user_Id = #{userId}
+    </select>
 
     <resultMap id="LikeResultMap" type="com.solvd.instagram.models.Like">
         <id property="id" column="id"/>

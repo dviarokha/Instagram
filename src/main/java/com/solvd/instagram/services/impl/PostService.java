@@ -1,7 +1,11 @@
 package com.solvd.instagram.services.impl;
 
 import com.solvd.instagram.dao.*;
-import com.solvd.instagram.dao.mySQLIplm.*;
+import com.solvd.instagram.dao.mySQLImpl.*;
+import com.solvd.instagram.dao.mybatisImpl.CommentMyBatis;
+import com.solvd.instagram.dao.mybatisImpl.LikeMyBatis;
+import com.solvd.instagram.dao.mybatisImpl.PostMyBatis;
+import com.solvd.instagram.dao.mybatisImpl.PostTagMyBatis;
 import com.solvd.instagram.exceptions.PostValidationException;
 import com.solvd.instagram.models.*;
 import com.solvd.instagram.services.IPostService;
@@ -11,15 +15,15 @@ import java.util.Optional;
 
 public class PostService implements IPostService {
 
-    private IPostDAO postDAO = new PostDAO();
-    private ICommentDAO commentDAO = new CommentDAO();
-    private ILikeDAO likeDAO = new LikeDAO();
-    private IPostTagDAO postTagDAO = new PostTagDAO();
+    private IPostDAO<Post> postDAO = new PostMyBatis();
+    private ICommentDAO<Comment> commentDAO = new CommentMyBatis();
+    private ILikeDAO<Like> likeDAO = new LikeMyBatis();
+    private IPostTagDAO<PostTag> postTagDAO = new PostTagMyBatis();
 
 
     @Override
     public Optional<Post> findById(Long id) throws SQLException {
-        Post post = (Post) postDAO.getById(id);
+        Post post = postDAO.getById(id);
         if (post == null) {
             return Optional.empty();
         }

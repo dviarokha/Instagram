@@ -1,10 +1,9 @@
-package com.solvd.instagram.dao.mySQLIplm;
+package com.solvd.instagram.dao.mySQLImpl;
 
 
 import com.solvd.instagram.dao.IMessageDAO;
 
 import com.solvd.instagram.models.Message;
-import com.solvd.instagram.models.Post;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

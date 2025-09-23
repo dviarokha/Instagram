@@ -1,5 +1,7 @@
 package com.solvd.instagram.dao;
 
+import com.solvd.instagram.models.Post;
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;

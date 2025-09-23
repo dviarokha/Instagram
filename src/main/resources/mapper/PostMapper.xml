@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.solvd.instagram.mybatis.PostMapper">
+<mapper namespace="com.solvd.instagram.dao.mybatisImpl.PostMapper">
 
-    <insert id="createPost" useGeneratedKeys="true" keyProperty="id">
+
+    <select id="getAll" resultMap="PostResultMap">
+        SELECT * FROM Posts
+    </select>
+
+    <select id="findByPostedAt" resultMap="PostResultMap">
+        SELECT * FROM Posts
+        WHERE  posted_at = #{posted_at}
+    </select>
+
+    <select id="findByPostTypeId" resultMap="PostResultMap">
+        SELECT * FROM Posts
+        WHERE post_type_id = #{post_type_id}
+    </select>
+
+    <select id="findByUserId" resultMap="PostResultMap">
+        SELECT * FROM Posts
+        WHERE user_id = #{user_id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO Posts (posted_at, post_type_id, user_id)
         VALUES (#{postedAt}, #{postTypeID}, #{userID} )
     </insert>
 
-<select id="findPost" resultMap="PostResultMap">
-    SELECT * FROM Posts
-    where posted_at = #{posted_at} AND post_type_id = #{post_type_id} AND user_id = #{user_id}
-</select>
+    <select id="selectById" resultMap="PostResultMap">
+        SELECT * FROM Posts
+        WHERE posted_at = #{posted_at} AND post_type_id = #{post_type_id} AND user_id = #{user_id}
+    </select>
 
-    <update id="updatePost" >
+    <update id="update" >
         UPDATE Posts SET posted_at = #{posted_at}, post_type_id = #{post_type_id}, user_id = #{user_id} Where id = #{id}
     </update>
 
-    <delete id="deletePostById">
+    <delete id="removeById">
        DELETE FROM Posts where id = #{id}
     </delete>
 
-    <select id="findAllPosts" resultMap="PostResultMap">
-        SELECT * FROM Posts
-    </select>
-
-    <sql id="whereUserAndType">
-        WHERE user_id = #{userId} AND post_type_id = #{postTypeId}
-    </sql>
-
-    <select id="findByTypeAndUserId" resultMap="PostResultMap">
-        SELECT * FROM Posts
-        <include refid="whereUserAndType"/>
-    </select>
 
     <resultMap id="PostResultMap" type="com.solvd.instagram.models.Post">
         <id property="id" column="id"/>

@@ -1,4 +1,4 @@
-package com.solvd.instagram.dao.mySQLIplm;
+package com.solvd.instagram.dao.mySQLImpl;
 
 import com.solvd.instagram.dao.IPostTagDAO;
 import com.solvd.instagram.models.PostTag;

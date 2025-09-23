@@ -15,6 +15,6 @@
     </environments>
 
     <mappers>
-        <mapper resource=""/>
+        <mapper resource="PostMapper.xml"/>
     </mappers>
 </configuration>
